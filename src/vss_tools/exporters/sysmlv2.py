@@ -18,18 +18,19 @@ from vss_tools.tree import VSSNode
 
 fqns: set[str] = set()
 
-# Translate SysML types (TODO: better suited SysML types)
+# Translate SysML types (TODO: use better suited SysML types)
 primitiveDict = {
-    "string" : "ScalarValues::String",
-    "float" : "ScalarValues::Real",
-    "boolean" : "ScalarValues::Boolean",
-    "int8" : "ScalarValues::Integer",
-    "uint8" : "ScalarValues::Integer",
-    "int16" : "ScalarValues::Integer",
-    "uint16" : "ScalarValues::Integer",
-    "int32" : "ScalarValues::Integer",
-    "uint32" : "ScalarValues::Integer"
+    "string": "ScalarValues::String",
+    "float": "ScalarValues::Real",
+    "boolean": "ScalarValues::Boolean",
+    "int8": "ScalarValues::Integer",
+    "uint8": "ScalarValues::Integer",
+    "int16": "ScalarValues::Integer",
+    "uint16": "ScalarValues::Integer",
+    "int32": "ScalarValues::Integer",
+    "uint32": "ScalarValues::Integer",
 }
+
 
 # make first character lowercase
 def lc_first(s) -> str:
@@ -50,6 +51,7 @@ def get_fqn2(node: VSSNode) -> str:
                 fqn = "P" + node.name + "::" + fqn
         node = node.parent
     return fqn
+
 
 # get the name of a node, optionally qualified
 def get_name(node: VSSNode, qualify: bool) -> str:
@@ -91,6 +93,7 @@ def has_instance_child(node: VSSNode) -> bool:
 def has_nested_instance_child(node: VSSNode) -> bool:
     return node.count_instance_children_depth() > 1
 
+
 def get_enum(tree: VSSNode, fill: str, attributes: tuple[str]) -> str:
     """Create a SysMLv2 enum def for allowed values, takes indentation into account"""
 
@@ -107,19 +110,21 @@ def get_enum(tree: VSSNode, fill: str, attributes: tuple[str]) -> str:
                 tree_content_lines.append("%s// %s" % (fill, data.description))
                 tree_content_lines.append("%senum def %s {" % (fill, node.name))
                 for a in allowed:
-                    if a[0] >= '0' and a[0] <= '9':
-                        a = '_' + a
+                    if a[0] >= "0" and a[0] <= "9":
+                        a = "_" + a
                     tree_content_lines.append("%s\tenum %s;" % (fill, a))
                 tree_content_lines.append("%s}" % (fill))
 
     return "\n".join(tree_content_lines)
 
 
-def translatePrimitive(name : str) -> str:
+def translatePrimitive(name: str) -> str:
     if primitiveDict.get(name):
-        return primitiveDict.get(name)
+        # entry is always a string, if it exists
+        return str(primitiveDict.get(name))
     else:
         return name
+
 
 def get_rendered_class(tree: VSSNode, fill, attributes: tuple[str]) -> str:
     """Create a SysMLv2 representation of an enumeration, takes indentation into account"""
@@ -145,7 +150,7 @@ def get_rendered_class(tree: VSSNode, fill, attributes: tuple[str]) -> str:
             if getattr(data, "allowed", None):
                 # use qualified name of enumeration as datatype
                 datatype = get_fqn2(node)
-            tree_content_lines.append("%s%s : %s;" % (fill, lc_first(node.name), translatePrimitive(datatype)))
+            tree_content_lines.append("%s%s : %s;" % (fill, lc_first(node.name), translatePrimitive(str(datatype))))
         else:
             tree_content_lines.append("%s%s : %s;" % (fill, lc_first(node.name), get_partname(node, True)))
 
