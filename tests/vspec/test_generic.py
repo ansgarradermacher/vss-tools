@@ -89,6 +89,7 @@ def test_exporters(directory, tmp_path):
         "jsonschema",
         "ddsidl",
         "plantuml",
+        "sysmlv2",
         "csv",
         "yaml",
         "go",
